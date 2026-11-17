@@ -46,11 +46,11 @@ error = method.update(0.8)   # Supply the observed score after y is revealed.
 | Truncated split conformal | Section 2.2, the three-branch truncation definition | Tests $S_{t-1}+1-\alpha>\kappa t^{1-\beta}$ and $S_{t-1}-\alpha<-\kappa t^{1-\beta}$; uses its own miscoverage count and retains every baseline observation. |
 | Threshold ACI | Section 3, the threshold update | Tests miscoverage against $q_t$, then adds $ct^{-(1-\beta)}(\mathrm{err}_t-\alpha)$, starting at $t=1$; the threshold is not projected. |
 
-The unit tests check literal conformal ranks over short histories with ties, both strict truncation boundaries, and ACI against a 60-digit reference across 27 parameter configurations. They also check the constant-step and summation-by-parts identities. The compiled validator checks 2,137,700 admissible previous-state/next-outcome cases, 8,181 tied-rank comparisons, and 81 independent disagreement integrals before comparing complete Python and C++ trajectories.
+The independent validator in `simu/validate.py` checks 2,137,700 admissible previous-state/next-outcome cases, 8,181 tied-rank comparisons, and 81 independent disagreement integrals before comparing complete Python and C++ trajectories. These checks run before the simulation.
 
 Python interprets the decimal values of $\alpha$ and $\kappa$ exactly in conformal rank and truncation comparisons. This prevents conversion to floating point from turning a strict inequality into equality. Fractional powers in the boundary remain numerical approximations.
 
-ACI compares each score with its stored floating-point threshold. Accumulated roundoff can change a decision at an exact tie with the ideal real-arithmetic threshold. For example, with $\alpha=0.1$, $\beta=1$, $c=1$, and $q_1=0.9$, nine updates on score 1 give a stored threshold just below 1 instead of exactly 1. No comparison tolerance is added, since that would change the prescribed membership test. The regression tests include exactly representable ties and compare decaying-step trajectories with high-precision arithmetic.
+ACI compares each score with its stored floating-point threshold. Accumulated roundoff can change a decision at an exact tie with the ideal real-arithmetic threshold. For example, with $\alpha=0.1$, $\beta=1$, $c=1$, and $q_1=0.9$, nine updates on score 1 give a stored threshold just below 1 instead of exactly 1. No comparison tolerance is added, since that would change the prescribed membership test.
 
 ## Disagreement and uncertainty
 
@@ -69,9 +69,6 @@ Estimate curves include every saved checkpoint in the prescribed time window. Lo
 ```sh
 # Use the dependency versions tested for this release.
 python -m pip install -r requirements-lock.txt
-
-# Public method checks, including exhaustive short adversarial streams.
-python -m unittest discover -s tests -v
 
 # Run the simulation and all figures.
 python -m simu.run --profile paper --workers 4

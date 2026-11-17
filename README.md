@@ -21,9 +21,10 @@ on every data sequence, where $\mathrm{err}_t^{\mathcal C}=\mathbf{1}\{Y_t\notin
 Fix a measurable score $s$, and let $\mathcal Q$ be the nonempty class of all i.i.d. laws under which $s(X,Y)$ has a nonatomic distribution. For each $P\in\mathcal Q$, we compare the algorithm with an oracle whose coverage given the past is exactly $1-\alpha$, almost surely at every round:
 
 $$
-P\!\left(Y_t\in\mathcal C^*_{P,t}(X_t)\mid\mathcal G_{t-1}\right)=1-\alpha,
-\qquad
+\begin{gathered}
+P\!\left(Y_t\in\mathcal C^*_{P,t}(X_t)\mid\mathcal G_{t-1}\right)=1-\alpha,\\[4pt]
 \mathcal G_{t-1}=\sigma\!\left((X_r,Y_r)_{r<t}\right).
+\end{gathered}
 $$
 
 The oracle may know $P$; the algorithm does not. Both construct their prediction sets as deterministic measurable functions of past observations and the current feature. Their cumulative disagreement counts responses that belong to exactly one of the two sets:
@@ -36,18 +37,17 @@ $$
 Let $\mathcal A_{\beta,\kappa}$ denote algorithms satisfying the long-run coverage constraint, and let $\mathcal O_\alpha(P)$ denote the exact oracles above. The minimax expected disagreement is
 
 $$
-\begin{aligned}
+\begin{gathered}
 \inf_{\mathcal C\in\mathcal A_{\beta,\kappa}}
 \sup_{P\in\mathcal Q}
 \inf_{\mathcal C^*_P\in\mathcal O_\alpha(P)}
-\mathbb E_P\!\left[\ell_T(\mathcal C,\mathcal C^*_P)\right]
-&\asymp T^{\max\{1/2,\beta\}}\\[4pt]
-&=
+\mathbb E_P\!\left[\ell_T(\mathcal C,\mathcal C^*_P)\right]\\[6pt]
+\asymp T^{\max\{1/2,\beta\}}=
 \begin{cases}
 \sqrt T, & 0\leq\beta\leq \tfrac12,\\[2pt]
 T^\beta, & \tfrac12<\beta\leq 1.
 \end{cases}
-\end{aligned}
+\end{gathered}
 $$
 
 The notation $\asymp$ means equality up to positive constants for sufficiently large $T$. Learning the unknown distribution costs order $\sqrt T$. The coverage constraint preserves this rate for $\beta\leq 1/2$ and raises it to $T^\beta$ for $\beta>1/2$.
@@ -59,32 +59,30 @@ For comparison, consider **adaptive conformal inference (ACI)** with a fixed sco
 $$
 \inf_{\mathcal C^*_P\in\mathcal O_\alpha(P)}
 \mathbb E_P\!\left[\ell_T(\mathcal C^{\mathrm{ACI}},\mathcal C^*_P)\right]
-\asymp T^{(1+\beta)/2},
-\qquad
-\frac{1+\beta}{2}>\max\!\left\{\frac12,\beta\right\}.
+\asymp T^{(1+\beta)/2}.
 $$
 
-Thus ACI accumulates disagreement faster than truncated split conformal prediction under the same long-run coverage guarantee.
+Since $(1+\beta)/2>\max\{1/2,\beta\}$, ACI accumulates disagreement faster than truncated split conformal prediction under the same long-run coverage guarantee.
 
 ## Repository
 
 ```text
-methods/                   One Python implementation per method
-  split_conformal.py       Split conformal prediction
-  truncated.py             Truncation of a baseline prediction set
-  aci.py                   Quantile-threshold ACI
+methods/                    One Python implementation per method
+  split_conformal.py        Split conformal prediction
+  truncated.py              Truncation of a baseline prediction set
+  aci.py                    Quantile-threshold ACI
 simu/
-  dgp.py                   Data-generating process and score
-  run.py                   Simulation, summaries, and numerical checks
-  validate.py              Independent checks of the simulation engine
-  output/                  Generated simulation data
+  dgp.py                    Data-generating process and score
+  run.py                    Simulation, summaries, and numerical checks
+  validate.py               Independent checks of the simulation engine
+  output/                   Generated simulation data
 figure/
   figure1_aci.py            ACI motivation
   figure2_conformal.py      Coverage paths and oracle disagreement
   figure3_decomposition.py  The cost of truncation
   figure4_comparison.py     ACI and truncated split conformal prediction
-  paper/                   Original paper figures and README previews
-  output/                  Generated figures and plotted values
+  paper/                    Original paper figures and README previews
+  output/                   Generated figures and plotted values
 ```
 
 The Python methods expose the algorithms directly. The simulation uses a C++ engine for the full experiment and checks its predictions against the Python implementations.
@@ -118,9 +116,11 @@ LaTeX is optional. With the paper's LaTeX fonts installed, the plots use `newpxt
 We use the heteroscedastic regression model
 
 $$
+\begin{gathered}
 X_t\sim\mathrm{Unif}[0,1],\qquad
-Y_t=\sin(2\pi X_t)+(0.2+0.3X_t)\varepsilon_t,\qquad
-\varepsilon_t\sim\mathrm{Unif}[-1,1],
+\varepsilon_t\sim\mathrm{Unif}[-1,1],\\[4pt]
+Y_t=\sin(2\pi X_t)+(0.2+0.3X_t)\varepsilon_t,
+\end{gathered}
 $$
 
 independently over time, with $X_t$ and $\varepsilon_t$ independent. The fixed score is the clipped absolute standardized residual, which is uniform on $[0,1]$. We set $\alpha=0.1$ and compare with the population prediction set having score threshold $0.9$.
