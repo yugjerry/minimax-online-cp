@@ -20,7 +20,7 @@ def aci_figure(root, output):
     for ax, beta, label in zip(axes, BETAS, "abc"):
         for algorithm, color in (("cp", BLUE), ("aci", ORANGE)):
             t, y, lo, hi = arrays(select(rows, beta, algorithm), "risk")
-            keep = (t >= CHECKPOINT_STEP) & (y > 0)
+            keep = t >= CHECKPOINT_STEP
             if np.any(lo[keep] <= 0):
                 raise ValueError("Positive lower intervals required on logarithmic axes")
             checked_band(ax, t[keep], lo[keep], hi[keep], checks,

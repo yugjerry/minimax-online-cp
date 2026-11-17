@@ -5,6 +5,7 @@ Keep the baseline set unless a possible next error could leave
 forcing coverage and the empty set when forcing miscoverage. Every observed
 score enters the baseline history, including scores from forced rounds.
 """
+from fractions import Fraction
 from math import inf, isfinite
 
 from .split_conformal import SplitConformal
@@ -21,12 +22,14 @@ class TruncatedConformal:
     def branch(self) -> int:
         """Return 1 for forced coverage, -1 for a forced miss, or 0."""
         t = len(self.baseline.history) + 1
-        bound = self.kappa * t ** (1 - self.beta)
-        # Rational centering avoids roundoff at exact alpha*t boundaries.
+        # Keep decimal parameters and centering exact; fractional powers remain
+        # floating-point approximations to the paper's real-valued boundary.
+        power = t if self.beta == 0 else t ** (1 - self.beta)
+        bound = Fraction(str(self.kappa)) * Fraction(str(power))
         centered = self.errors - t * self.baseline._alpha
-        if float(centered + 1) > bound:
+        if centered + 1 > bound:
             return 1
-        if float(centered) < -bound:
+        if centered < -bound:
             return -1
         return 0
 

@@ -114,6 +114,7 @@ def chunk(executable, out, first, count, horizon, seed, hashes):
 
 
 def statistics(values, nonnegative=True):
+    # Centering improves numerical stability and gives zero spread for identical values.
     centered = values - values[0]
     mean = float(values[0] + centered.mean())
     se = float(centered.std(ddof=1) / np.sqrt(len(values))) if len(values) > 1 else 0.0

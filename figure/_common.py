@@ -53,7 +53,7 @@ GUIDE_RIBBON = {"linewidth": 3.6, "alpha": .38, "solid_capstyle": "butt",
 GUIDE_LEGEND_GRAY = ".25"
 GUIDE_RENDERING = (
     "Each theoretical rate is a continuous translucent ribbon in its series "
-    "colour, beneath the estimate; no dashes, no white underlay."
+    "colour, beneath the estimate."
 )
 
 
@@ -115,8 +115,7 @@ def fingerprint(path):
 
 def select(rows, beta, algorithm=None):
     selected = [row for row in rows if abs(float(row["beta"]) - beta) < 1e-9
-                and (algorithm is None or row["algorithm"] == algorithm)
-                and row.get("oracle", "fixed_score") == "fixed_score"]
+                and (algorithm is None or row["algorithm"] == algorithm)]
     if not selected:
         raise ValueError(f"Missing beta={beta}, algorithm={algorithm}")
     return sorted(selected, key=lambda row: int(row["t"]))

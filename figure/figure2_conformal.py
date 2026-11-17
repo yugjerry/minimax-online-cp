@@ -82,7 +82,9 @@ def conformal_figure(root, output):
         max_interval = 0.
         for beta in betas:
             t, y, lo, hi = arrays(select(rows, beta), "total")
-            keep = (t >= CHECKPOINT_STEP) & (y > 0)
+            keep = t >= CHECKPOINT_STEP
+            if not wide and np.any(lo[keep] <= 0):
+                raise ValueError("Positive lower intervals required on logarithmic axes")
             color = (WIDE_COLORS if wide else NARROW_COLORS).get(round(beta, 1), CRITICAL_COLOR)
             checked_band(ax, t[keep], lo[keep], hi[keep], checks,
                          f"panel {label}, beta={beta}: total MC interval", color=color, alpha=.14, linewidth=0)
@@ -96,6 +98,8 @@ def conformal_figure(root, output):
             record_series(plotted, label, "total", beta, t, y, lo, hi, keep, guide, displayed)
             max_interval = max(max_interval, float(hi.max()))
         keep = bt >= CHECKPOINT_STEP
+        if not wide and np.any(blo[keep] <= 0):
+            raise ValueError("Positive baseline intervals required on logarithmic axes")
         checked_band(ax, bt[keep], blo[keep], bhi[keep], checks,
                      f"panel {label}: baseline MC interval", color=INK, alpha=.10, linewidth=0)
         checked_line(ax, bt[keep], by[keep], checks, f"panel {label}: raw baseline",

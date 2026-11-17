@@ -51,7 +51,7 @@ def motivation_figure(root, output):
         # R_* columns are cumulative risk summaries, not averages over time.
         t, cumulative, cumulative_lo, cumulative_hi = arrays(select(summaries, beta), "R")
         y, lo, hi = cumulative/t, cumulative_lo/t, cumulative_hi/t
-        keep = y > 0
+        keep = t >= CHECKPOINT_STEP
         if np.any(lo[keep] <= 0):
             raise ValueError("Positive motivation intervals required on logarithmic axes")
         checked_band(axes[2], t[keep], lo[keep], hi[keep], checks,

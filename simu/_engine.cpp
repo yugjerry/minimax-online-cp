@@ -182,7 +182,6 @@ int main(int argc, char** argv) try {
     for (int rep=o.first;rep<o.first+o.reps;++rep) {
         RNG split(o.seed^(std::uint64_t(rep)*0xd1b54a32d192ed03ULL));
         RNG data(split());
-        split(); split(); // Preserve legacy grid/smoothing stream slots; neither is used.
         History history(o.horizon,split());
         std::vector<State> states(configs.size());
         LD baseline=0, max_cp=0, max_aci=0;

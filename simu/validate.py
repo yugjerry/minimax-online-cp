@@ -2,8 +2,8 @@
 """Independently check unsmoothed ranks, conditional losses, ACI, and replay.
 
 The reference uses a sorted Python list, the literal integer rank inequality,
-and interval integration for disagreement. A small compiled fixture exercises
-the engine's actual order-statistic tree with ties and exact rank boundaries.
+and interval integration for disagreement. A compiled fixture exercises the
+engine's tree with ties, admissible error states, and full/empty prediction sets.
 """
 from __future__ import annotations
 
@@ -90,7 +90,7 @@ def index(rows: list[dict]) -> dict:
 
 
 def validate_rank_fixture(out: Path) -> dict:
-    """Exercise production History/threshold independently of simulated no-ties data."""
+    """Check ranks, adversarial states, and losses beyond the random data paths."""
     source = out / "rank_fixture.cpp"
     source.write_text(r'''#define main simulation_main
 #include "_engine.cpp"
@@ -126,7 +126,49 @@ int main() {
     }
     if (branch(0,1,.5L)!=1 || branch(0,5,.5L)!=0 || branch(0,6,.5L)!=-1)
         throw std::runtime_error("Strict corridor boundary test failed");
-    std::cout<<comparisons<<'\n';
+    I64 state_checks=0, integral_checks=0;
+    // Test every admissible previous error count, regardless of which data
+    // produced it, and both possible baseline outcomes. Check the resulting
+    // error sum directly rather than duplicating the branch conditions.
+    for (int b=0;b<=10;++b) for (LD kappa:{.5L,1.L,2.L}) {
+        for (int t=1;t<=500;++t) {
+            LD bound=kappa*std::pow(LD(t),1-b/10.L);
+            LD previous=t==1 ? 0.L : kappa*std::pow(LD(t-1),1-b/10.L);
+            for (I64 errors=0;errors<t;++errors) {
+                if (std::fabs((10*errors-(t-1))/10.L)>previous) continue;
+                int action=branch(errors,t,bound);
+                if (b==10 && kappa==.5L) {
+                    // The constant half-width admits an exact integer check.
+                    int exact=10*errors+10-t>5 ? 1 : 10*errors-t< -5 ? -1 : 0;
+                    if (action!=exact) throw std::runtime_error("Exact boundary mismatch");
+                }
+                for (int baseline_error:{0,1}) {
+                    int error=action==1 ? 0 : action==-1 ? 1 : baseline_error;
+                    if (std::fabs((10*(errors+error)-t)/10.L)>bound+1e-14L)
+                        throw std::runtime_error("Adversarial corridor violation");
+                    ++state_checks;
+                }
+            }
+        }
+    }
+    // Integrate the membership XOR over intervals with constant membership.
+    LD infinity=std::numeric_limits<LD>::infinity();
+    std::vector<LD> thresholds={-infinity,-.2L,0.L,.05L,.3L,.9L,1.L,1.3L,infinity};
+    for (LD a:thresholds) for (LD b:thresholds) {
+        std::vector<LD> cuts={0.L,1.L};
+        if (a>0 && a<1) cuts.push_back(a);
+        if (b>0 && b<1) cuts.push_back(b);
+        std::sort(cuts.begin(),cuts.end());
+        LD mass=0;
+        for (std::size_t i=1;i<cuts.size();++i) {
+            LD midpoint=(cuts[i-1]+cuts[i])/2;
+            if ((midpoint<=a)!=(midpoint<=b)) mass+=cuts[i]-cuts[i-1];
+        }
+        if (std::fabs(mass-std::fabs(cdf(a)-cdf(b)))>1e-14L)
+            throw std::runtime_error("Conditional disagreement integral mismatch");
+        ++integral_checks;
+    }
+    std::cout<<comparisons<<' '<<state_checks<<' '<<integral_checks<<'\n';
 }
 ''')
     executable = out / "rank_fixture"
@@ -134,7 +176,10 @@ int main() {
                     "-pedantic", "-I", str(Path(__file__).resolve().parent), str(source),
                     "-o", str(executable)], check=True, capture_output=True, text=True)
     result = subprocess.run([str(executable)], check=True, capture_output=True, text=True)
-    return {"literal_rank_comparisons_with_ties": int(result.stdout),
+    rank_checks, state_checks, integral_checks = map(int, result.stdout.split())
+    return {"literal_rank_comparisons_with_ties": rank_checks,
+            "admissible_state_outcome_checks": state_checks,
+            "threshold_pair_integral_checks": integral_checks,
             "integer_rank_boundaries_tested": [9, 10, 11, 19, 20, 21, 99, 100, 101],
             "threshold_independent_of_tree_priorities": True,
             "strict_corridor_boundaries_tested": True}
@@ -156,8 +201,6 @@ def validate(engine: Path, out: Path) -> dict:
     for rep in range(reps):
         split = RNG(seed ^ ((rep * 0xD1B54A32D192ED03) & MASK))
         data = RNG(split.integer())
-        # The two reserved legacy slots do not influence the data stream.
-        split.integer(); split.integer()
         past: list[float] = []
         states = {config: {"q": .9, "errors": 0, "risk": 0., "realized": 0,
                            "truncation": 0., "nplus": 0, "nminus": 0}

@@ -3,6 +3,11 @@
 After predicting {y: score(x, y) <= q_t}, update
 q_{t+1} = q_t + eta_t*(error_t-alpha). Thresholds are not clipped: a
 threshold outside the score support gives full or empty prediction sets.
+
+Membership compares to the stored floating-point threshold; accumulated
+roundoff can change a tie with the ideal real-arithmetic threshold. No
+comparison tolerance is added. The paper's coverage certificate assumes
+scores and q1 in [0, B], giving kappa = (B+c)/c.
 """
 from math import isfinite
 
