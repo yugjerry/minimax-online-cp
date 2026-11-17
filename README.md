@@ -21,13 +21,10 @@ on every data sequence, where $`\mathrm{err}_t^{\mathcal{C}}=\mathbf{1}\{Y_t\not
 Fix a measurable score $`s`$, and let $`\mathcal{Q}`$ be the nonempty class of all i.i.d. laws under which $`s(X,Y)`$ has a nonatomic distribution. For each $`P\in\mathcal{Q}`$, we compare the algorithm with an oracle whose coverage given the past is exactly $`1-\alpha`$, almost surely at every round:
 
 ```math
-\begin{gathered}
-P\left(Y_t\in\mathcal{C}^{\star}_{P,t}(X_t)\mid\mathcal{G}_{t-1}\right)=1-\alpha,\\
-\mathcal{G}_{t-1}=\sigma\left((X_r,Y_r)_{r<t}\right).
-\end{gathered}
+P(Y_t\in\mathcal{C}_{P,t}^{\star}(X_t)\mid\mathcal{G}_{t-1})=1-\alpha.
 ```
 
-The oracle may know $`P`$; the algorithm does not. Both construct their prediction sets as deterministic measurable functions of past observations and the current feature. Their cumulative disagreement counts responses that belong to exactly one of the two sets:
+Here $`\mathcal{G}_{t-1}=\sigma((X_r,Y_r)_{r\lt t})`$ is the history of past observations. The oracle may know $`P`$; the algorithm does not. Both construct their prediction sets as deterministic measurable functions of past observations and the current feature. Their cumulative disagreement counts responses that belong to exactly one of the two sets:
 
 ```math
 \ell_T(\mathcal{C},\mathcal{C}^{\star}_P)
@@ -45,16 +42,16 @@ Let $`\mathcal{A}_{\beta,\kappa}`$ denote algorithms satisfying the long-run cov
 \asymp T^{\max\{1/2,\beta\}}=
 \begin{cases}
 \sqrt{T}, & 0\leq\beta\leq \tfrac{1}{2},\\
-T^\beta, & \tfrac{1}{2}<\beta\leq 1.
+T^\beta, & \tfrac{1}{2}\lt \beta\leq 1.
 \end{cases}
 \end{gathered}
 ```
 
-The notation $`\asymp`$ means equality up to positive constants for sufficiently large $`T`$. Learning the unknown distribution costs order $`\sqrt{T}`$. The coverage constraint preserves this rate for $`\beta\leq 1/2`$ and raises it to $`T^\beta`$ for $`\beta>1/2`$.
+The notation $`\asymp`$ means equality up to positive constants for sufficiently large $`T`$. Learning the unknown distribution costs order $`\sqrt{T}`$. The coverage constraint preserves this rate for $`\beta\leq 1/2`$ and raises it to $`T^\beta`$ for $`\beta\gt 1/2`$.
 
 **Truncated split conformal prediction** attains this rate. It keeps the baseline prediction set whenever both possible outcomes respect the constraint. Otherwise, it outputs the full response space or the empty set to force coverage or miscoverage.
 
-For comparison, consider **adaptive conformal inference (ACI)** with a fixed score in $`[0,B]`$, an initial threshold $`q_1\in[0,B]`$, and steps $`\eta_t=ct^{-(1-\beta)}`$, where $`B,c>0`$ and $`0<\beta<1`$. It satisfies the same constraint with $`\kappa=(B+c)/c>1`$. Under i.i.d. sampling, if the score density is bounded above and away from zero almost everywhere on $`[0,B]`$, then
+For comparison, consider **adaptive conformal inference (ACI)** with a fixed score in $`[0,B]`$, an initial threshold $`q_1\in[0,B]`$, and steps $`\eta_t=ct^{-(1-\beta)}`$, where $`B,c\gt 0`$ and $`0\lt \beta\lt 1`$. It satisfies the same constraint with $`\kappa=(B+c)/c\gt 1`$. Under i.i.d. sampling, if the score density is bounded above and away from zero almost everywhere on $`[0,B]`$, then
 
 ```math
 \inf_{\mathcal{C}^{\star}_P\in\mathcal{O}_\alpha(P)}
@@ -62,7 +59,7 @@ For comparison, consider **adaptive conformal inference (ACI)** with a fixed sco
 \asymp T^{(1+\beta)/2}.
 ```
 
-Since $`(1+\beta)/2>\max\{1/2,\beta\}`$, ACI accumulates disagreement faster than truncated split conformal prediction under the same long-run coverage guarantee.
+Since $`(1+\beta)/2\gt \max\{1/2,\beta\}`$, ACI accumulates disagreement faster than truncated split conformal prediction under the same long-run coverage guarantee.
 
 ## Repository
 
