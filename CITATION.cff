@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+type: software
+title: "The cost of enforcing long-run coverage: a phase transition in online conformal prediction"
+authors:
+  - family-names: Gui
+    given-names: Yu
+  - family-names: Barber
+    given-names: Rina Foygel
+  - family-names: Ma
+    given-names: Cong
+preferred-citation:
+  type: article
+  title: "The cost of enforcing long-run coverage: a phase transition in online conformal prediction"
+  authors:
+    - family-names: Gui
+      given-names: Yu
+    - family-names: Barber
+      given-names: Rina Foygel
+    - family-names: Ma
+      given-names: Cong
+  journal: arXiv
+  year: 2026
+  doi: 10.48550/arXiv.2611.21542
+  url: "https://arxiv.org/abs/2611.21542"
